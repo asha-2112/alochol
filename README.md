@@ -1,74 +1,150 @@
-# Alcohol-Based Engine Lock System
-### IoT Mini Project | Arduino Uno + MQ-3 Alcohol Sensor
+<div align="center">
 
-An educational prototype that detects alcohol vapour near an MQ-3 sensor and blocks a **simulated engine/ load** when the sensor reading exceeds a configurable threshold. It demonstrates how an alcohol-sensing input can control an output, provide an alert, and display system status.
+# 🍃 Alcohol-Based Engine Lock System
 
-> **Safety note:** This is a classroom prototype, not a certified breathalyser or vehicle safety device. **Do not connect this circuit to a real vehicle's ignition, fuel system, or other safety-critical wiring.** Use the relay only with a low-voltage demonstration load (for example, an LED or small DC demo motor within the module's ratings). Sensor readings are affected by warm-up, calibration, temperature, humidity, and vapour concentration; this project cannot determine a person's blood-alcohol concentration or driving fitness.
+### An Arduino-powered IoT safety prototype
 
-## Features
-- Reads alcohol-sensor output from the MQ-3 module.
-- Compares the reading against a configurable threshold.
-- Simulates an engine lock using a relay output.
-- Sounds a buzzer when the reading is above the threshold.
-- Uses serial-monitor output for live readings and status.
-- Includes a startup warm-up period and simple averaging to reduce noisy readings.
+**MQ-3 Alcohol Sensor · Arduino Uno · Relay Module · Buzzer**
 
-## Hardware
-- Arduino Uno (or compatible 5 V board)
+![Arduino](https://img.shields.io/badge/Controller-Arduino_Uno-00979D?style=for-the-badge&logo=arduino&logoColor=white)
+![Language](https://img.shields.io/badge/Code-C%2B%2B-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
+![Domain](https://img.shields.io/badge/Domain-IoT-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Project-Educational_Demo-blueviolet?style=for-the-badge)
+
+*A sensor-based prototype that demonstrates how alcohol-vapour readings can trigger an alert and disable a simulated engine output.*
+
+</div>
+
+---
+
+## 📌 Overview
+
+The **Alcohol-Based Engine Lock System** is an IoT mini-project built around an **MQ-3 alcohol sensor** and an **Arduino Uno**. The sensor provides an analog reading, which the Arduino compares with a configurable threshold. When the reading reaches the threshold, the system switches a relay-controlled **low-voltage demonstration output** to the locked state and activates visual and audible alerts.
+
+The project demonstrates the basic principles of **sensor interfacing, embedded decision logic, output control, and real-time monitoring**.
+
+> ⚠️ **Safety notice:** This is an educational prototype, not a certified breathalyser or automotive safety device. Do not connect it to a real vehicle's ignition, fuel system, or safety-critical wiring. Use the relay only with a low-voltage demonstration load. MQ-3 readings are relative sensor values and do not measure blood-alcohol concentration or determine whether someone is fit to drive.
+
+## ✨ Features
+
+| Feature | Description |
+|---|---|
+| 🧪 Alcohol-vapour sensing | Reads the analog output of an MQ-3 sensor module. |
+| 🧠 Threshold-based logic | Compares averaged sensor readings against a configurable threshold. |
+| 🔒 Simulated engine lock | Switches a relay output to represent enabled/locked states. |
+| 🚨 Alert indicators | Uses a buzzer and red/green LEDs to indicate system status. |
+| 📟 Live monitoring | Displays sensor values and status through the Arduino Serial Monitor. |
+| ⏳ Startup warm-up | Keeps the demo output locked during the configured startup period. |
+
+## 🧰 Hardware Required
+
+- Arduino Uno or compatible 5 V board
 - MQ-3 alcohol sensor module with analog output (AO)
-- 5 V relay module (for low-voltage demo load only)
+- 5 V relay module
 - Active buzzer
-- Green LED and red LED, each with a suitable current-limiting resistor (typically 220–330 Ω)
+- Green LED and red LED
+- 220–330 Ω current-limiting resistors for LEDs
 - Breadboard and jumper wires
 - USB cable
-- Optional: low-voltage demo LED/load to represent the “engine”
+- Optional low-voltage demo LED or small DC demo load
 
-## Wiring
+## 🔌 Wiring Guide
 
-| Component | Arduino connection | Notes |
-|---|---|---|
-| MQ-3 VCC | 5V | Confirm your module's voltage requirements |
+| Component | Arduino pin | Connection |
+|---|---:|---|
+| MQ-3 VCC | 5V | Sensor power (check module requirements) |
 | MQ-3 GND | GND | Common ground |
-| MQ-3 AO | A0 | Analog sensor output |
-| Relay module IN | D8 | Relay controls only a low-voltage demo load |
-| Buzzer (+) | D7 | Use a driver transistor if required by your buzzer's current |
-| Green LED (+) | D5 through 220–330 Ω resistor | “Demo engine enabled” indicator |
-| Red LED (+) | D6 through 220–330 Ω resistor | “Alcohol threshold exceeded” indicator |
-| LEDs / buzzer / relay GND | GND | Common ground |
+| MQ-3 AO | A0 | Analog sensor signal |
+| Relay module IN | D8 | Controls demo output |
+| Buzzer (+) | D7 | Use a driver if required by the buzzer's current |
+| Green LED (+) | D5 | Connect through a 220–330 Ω resistor |
+| Red LED (+) | D6 | Connect through a 220–330 Ω resistor |
+| LED cathodes / module GND | GND | Common ground |
 
-Connect each LED's cathode to GND. Follow the pin labels on your specific modules. Never connect mains voltage or vehicle ignition wiring to this prototype.
+**Important:** Relay modules differ. Confirm whether yours is active-low or active-high before powering the circuit. Never connect mains voltage or a real vehicle circuit to this project.
 
-## How it works
-1. The sensor is powered and allowed to warm up.
-2. The Arduino takes several analog readings and averages them.
-3. If the averaged value is below the configured threshold, the green LED turns on and the relay is placed in the demo “enabled” state.
-4. If the value reaches or exceeds the threshold, the relay is placed in the demo “locked” state, the red LED turns on, and the buzzer sounds.
-5. Sensor values and status are printed to the Serial Monitor.
+## ⚙️ How It Works
 
-The MQ-3 output is an **uncalibrated relative reading**, not a BAC value. The default threshold is only a starting point for a controlled classroom demonstration.
+<div align="center">
 
-## Software setup
-1. Install the [Arduino IDE](https://www.arduino.cc/en/software).
-2. Open `arduino/Alcohol_Based_Engine_Lock_System.ino`.
-3. Select **Tools → Board → Arduino Uno** (or your compatible board) and the correct port.
-4. Upload the sketch.
-5. Open **Tools → Serial Monitor** and set the baud rate to **9600**.
-6. Allow the sensor to warm up and observe readings in clean air before testing. Use only a safe, supervised demonstration setup and never expose the sensor to open flames or concentrated flammable vapours.
+```text
+       ┌────────────────────┐
+       │  MQ-3 Alcohol      │
+       │  Sensor Module     │
+       └─────────┬──────────┘
+                 │ Analog reading
+                 ▼
+       ┌────────────────────┐
+       │    Arduino Uno     │
+       │ Average + Compare  │
+       └─────────┬──────────┘
+                 │
+          Threshold check
+            ┌────┴────┐
+            ▼         ▼
+      Below limit   At/above limit
+            │         │
+            ▼         ▼
+      Demo output   Demo output
+        ENABLED       LOCKED
+      Green LED ON   Red LED + buzzer
+</div>
+```
 
-## Configuration
-At the top of the sketch:
-- `ALCOHOL_THRESHOLD`: the analog reading at which the demo locks.
-- `WARMUP_TIME_MS`: startup warm-up time.
-- `SAMPLE_COUNT`: number of samples averaged per reading.
-- `RELAY_ACTIVE_LOW`: set `true` for common active-low relay modules, or `false` for active-high modules.
+1. **Sense:** The MQ-3 module provides an analog reading.
+2. **Stabilise:** The Arduino averages multiple readings and waits through a startup warm-up period.
+3. **Compare:** The averaged value is checked against `ALCOHOL_THRESHOLD`.
+4. **Respond:** Below the threshold, the demo output is enabled; at or above it, the output is locked and an alert is shown.
+5. **Monitor:** The Serial Monitor prints the reading, threshold, and current state.
 
-### Calibrating the demo threshold
-1. Power the sensor in a ventilated area and let it stabilise according to the module documentation.
-2. Record the clean-air readings in the Serial Monitor.
-3. Choose a threshold above normal baseline variation for a **demonstration only**.
-4. Verify both states using safe, controlled test conditions. Do not use this procedure to certify a device for driving or to infer alcohol concentration.
+## 💻 Getting Started
 
-## Repository structure
+### 1. Install the Arduino IDE
+
+Download and install the [Arduino IDE](https://www.arduino.cc/en/software).
+
+### 2. Open the sketch
+
+Open this file from the repository:
+
+```text
+arduino/Alcohol_Based_Engine_Lock_System.ino
+```
+
+### 3. Select your board and port
+
+In the Arduino IDE, select **Tools → Board → Arduino Uno**, then choose the correct serial port.
+
+### 4. Upload and monitor
+
+Upload the sketch and open **Tools → Serial Monitor**. Set the baud rate to **9600**.
+
+### 5. Test safely
+
+Allow the sensor to warm up and observe its baseline in clean air. Use only a ventilated, supervised classroom setup and safe test conditions. Keep flames and concentrated flammable vapours away from the sensor.
+
+## 🎛️ Configuration
+
+The main settings are near the top of the Arduino sketch:
+
+| Setting | Purpose |
+|---|---|
+| `ALCOHOL_THRESHOLD` | Analog reading at which the demo enters the locked state |
+| `WARMUP_TIME_MS` | Startup warm-up duration |
+| `SAMPLE_COUNT` | Number of samples averaged per reading |
+| `RELAY_ACTIVE_LOW` | Sets relay logic for active-low or active-high modules |
+
+### Choosing a demo threshold
+
+1. Let the sensor stabilise according to its module documentation.
+2. Observe several clean-air readings in the Serial Monitor.
+3. Select a threshold above ordinary baseline variation for a classroom demonstration.
+4. Verify both output states under safe, controlled conditions.
+
+The default threshold is only a starting value; it is **not a calibrated alcohol concentration** and should not be used for real-world driving decisions.
+
+## 🗂️ Project Structure
+
 ```text
 Alcohol_Based_Engine_Lock_System/
 ├── README.md
@@ -80,23 +156,70 @@ Alcohol_Based_Engine_Lock_System/
     └── PROJECT_OVERVIEW.md
 ```
 
-## Troubleshooting
-- **Reading stays at 0 or 1023:** check AO wiring, module power, common ground, and whether the selected pin is analog output.
-- **Reading drifts:** allow more warm-up time, keep airflow consistent, and avoid changing the threshold based on a single sample.
-- **Relay state is reversed:** change `RELAY_ACTIVE_LOW` to match your relay module.
-- **Buzzer does not sound:** check polarity and current requirements; use a transistor driver for a buzzer that draws more current than an Arduino pin can safely provide.
-- **Board resets when relay switches:** use a suitable relay module and power arrangement; avoid powering inductive loads directly from the Arduino.
+## 🧪 Demonstration Checklist
 
-## Limitations and future improvements
+- [ ] Sensor readings appear in the Serial Monitor.
+- [ ] The simulated output stays locked during warm-up.
+- [ ] A reading below the threshold enables the demo output.
+- [ ] A reading at or above the threshold locks the demo output and activates alerts.
+- [ ] Relay logic matches the actual relay module.
+- [ ] The circuit is connected only to a low-voltage demo load.
+
+## 🛠️ Troubleshooting
+
+<details>
+<summary><strong>Sensor reading stays at 0 or 1023</strong></summary>
+
+Check the sensor's power, AO wire to A0, and common ground. Confirm that you are using the analog output pin.
+</details>
+
+<details>
+<summary><strong>Sensor readings fluctuate</strong></summary>
+
+Allow more warm-up time, keep the test environment consistent, and use multiple samples rather than adjusting the threshold from one reading.
+</details>
+
+<details>
+<summary><strong>Relay works in reverse</strong></summary>
+
+Change `RELAY_ACTIVE_LOW` to match your relay module's trigger logic.
+</details>
+
+<details>
+<summary><strong>Buzzer does not sound</strong></summary>
+
+Check polarity and wiring. If the buzzer draws more current than an Arduino pin can safely supply, use an appropriate transistor driver.
+</details>
+
+<details>
+<summary><strong>Arduino resets when the relay switches</strong></summary>
+
+Check the relay module, power arrangement, and wiring. Do not drive inductive loads directly from an Arduino I/O pin.
+</details>
+
+## 🚀 Future Improvements
+
 - Add an LCD/OLED for local status display.
-- Log timestamped readings to an SD card or a dashboard.
-- Add a calibration procedure and sensor fault detection.
-- Use a certified automotive-grade system and professional integration for any real vehicle application; this hobby prototype is not suitable for that role.
+- Store timestamped readings on an SD card or send them to a monitoring dashboard.
+- Add sensor fault checks and a more systematic calibration workflow.
+- Build a dashboard to visualise readings and event history.
+- For any real automotive application, use certified equipment and professional automotive engineering; this prototype is not suitable for that use.
 
-## Resume description
+## 📄 Resume-Ready Description
+
 **Alcohol-Based Engine Lock System | IoT, Arduino, MQ-3 Sensor**
-- Built an Arduino-based alcohol-vapour detection prototype using an MQ-3 sensor.
-- Implemented threshold-based decision logic with relay-controlled demo output, LED indicators, and buzzer alerts.
-- Monitored sensor readings through the Serial Monitor and tuned the threshold for a controlled demonstration.
 
-Only include features you actually built or tested when describing the project on your resume.
+- Developed an Arduino-based alcohol-vapour detection prototype using an MQ-3 sensor.
+- Implemented threshold-based control logic with relay-operated demo output, LED indicators, and buzzer alerts.
+- Monitored live sensor readings and system states through the Arduino Serial Monitor.
+
+*Keep only the points that accurately reflect the features you personally implemented and tested.*
+
+---
+
+<div align="center">
+
+**Built as an educational IoT project**  
+*Arduino · Sensor Interfacing · Embedded Systems · Output Control*
+
+</div>
