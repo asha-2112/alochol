@@ -1,51 +1,59 @@
 # Alcohol-Based Engine Lock System
 
-An Arduino-based system that uses an MQ-3 alcohol sensor to detect alcohol vapour. When the sensor reading reaches a configured threshold, the controller disables a motor-driven wheel setup used to represent the vehicle ignition/engine. LEDs and a buzzer indicate the system status.
+An Arduino-based system that uses an MQ-3 alcohol sensor to detect alcohol vapour. When the sensor reading reaches a configured threshold, the Arduino disables the relay-controlled DC motor used in the wheel demonstration, representing an engine/ignition lock. LEDs and a buzzer indicate the system status.
 
 ## Features
 
 - Detects alcohol vapour using an MQ-3 sensor module.
 - Compares the sensor reading with a configurable threshold.
-- Controls a motor demonstration setup through a relay or motor-driver input.
+- Uses a relay to switch the DC motor demonstration circuit ON or OFF.
 - Activates LED and buzzer alerts when the threshold is exceeded.
 - Displays sensor readings and system status in the Serial Monitor.
 
 ## Components Required
 
 - Arduino Uno
-- MQ-3 alcohol sensor module
-- Motor and wheel assembly for the demonstration
-- Suitable motor driver module (recommended for controlling a DC motor)
+- MQ-3 alcohol sensor module with analog output
+- 5V relay module, rated for the DC motor's voltage and current
+- DC motor with wheels for the demonstration
+- External DC motor power supply matched to the motor's voltage and current
 - Active buzzer
 - Red and green LEDs
 - 220–330 Ω resistors for the LEDs
 - Breadboard and jumper wires
-- USB cable and suitable motor power supply
+- USB cable
 
 ## Connections
 
-| Component | Arduino connection | Notes |
+| Component | Arduino / circuit connection | Notes |
 |---|---|---|
-| MQ-3 VCC | 5V | Confirm the voltage required by your sensor module |
+| MQ-3 VCC | 5V | Confirm the voltage printed on your sensor module |
 | MQ-3 GND | GND | Common ground |
 | MQ-3 AO | A0 | Analog sensor reading |
-| Motor driver enable/control input | D8 | Use a motor driver; do not power a motor directly from an Arduino pin |
-| Buzzer (+) | D7 | Use a driver transistor if the buzzer current requires it |
-| Green LED (+) | D5 through a 220–330 Ω resistor | System allows motor operation |
+| Relay module VCC | 5V | For a 5V relay module |
+| Relay module GND | GND | Connect to Arduino GND |
+| Relay module IN | D8 | Arduino relay-control signal |
+| DC motor | Relay contacts and external motor supply | Route the motor's supply through the relay contacts; do not power the motor from an Arduino pin |
+| Buzzer (+) | D7 | Use a transistor driver if the buzzer draws more current than an Arduino pin can provide |
+| Green LED (+) | D5 through a 220–330 Ω resistor | Motor permitted to run |
 | Red LED (+) | D6 through a 220–330 Ω resistor | Alcohol threshold detected |
-| LED cathodes / module GND | GND | Common ground |
+| LED cathodes | GND | Connect through the circuit's common ground |
 
-**Important:** The exact motor-driver wiring depends on the module and motor you have. Connect the motor to the motor driver's output terminals and use a suitable separate motor supply. Connect the driver's logic ground and Arduino GND together. Do not connect the motor directly to an Arduino I/O pin.
+### Relay and DC motor wiring
+
+Use the relay's **COM** and **NO** contacts so the motor is normally disconnected when the relay is not energised. Connect the motor and external supply only within the relay's DC voltage and current ratings. A DC motor can draw a high starting current, so check its stall/start current against the relay rating. Add appropriate suppression for motor-generated electrical noise, following the relay and motor module specifications.
+
+Do not connect the motor directly to an Arduino I/O pin. Keep the motor on its own correctly rated supply. The Arduino and relay module should share ground on the control side as required by the module. Relay contact wiring is separate from the relay module's low-voltage control pins.
 
 ## Working Principle
 
-1. The MQ-3 sensor produces an analog reading based on alcohol vapour around the sensor.
+1. The MQ-3 sensor provides an analog reading based on alcohol vapour around the sensor.
 2. The Arduino samples and averages the sensor output.
-3. If the reading is below the configured threshold, the controller allows the demonstration motor to run.
-4. If the reading reaches or exceeds the threshold, the controller disables the motor output and activates the red LED and buzzer.
-5. The current sensor value and system state are shown in the Serial Monitor.
+3. If the reading is below the configured threshold, the relay energises and the DC motor runs.
+4. If the reading reaches or exceeds the threshold, the relay de-energises, disconnecting the motor circuit; the red LED and buzzer turn on.
+5. Sensor readings and the current system status appear in the Serial Monitor.
 
-The MQ-3 reading is a relative sensor value, not a calibrated alcohol concentration or blood-alcohol measurement. The threshold must be adjusted for the specific sensor module and test conditions.
+The MQ-3 reading is a relative sensor value, not a calibrated alcohol concentration or blood-alcohol measurement. Readings vary with warm-up time, airflow, temperature, humidity, and sensor condition.
 
 ## Software Setup
 
@@ -54,7 +62,7 @@ The MQ-3 reading is a relative sensor value, not a calibrated alcohol concentrat
 3. Select **Tools → Board → Arduino Uno** and choose the correct port.
 4. Upload the sketch.
 5. Open **Tools → Serial Monitor** and set the baud rate to **9600**.
-6. Check the sensor reading and verify the motor, LEDs, and buzzer using a safe, low-voltage setup.
+6. Check the sensor readings and verify the relay, DC motor, LEDs, and buzzer using a low-voltage setup.
 
 ## Configuration
 
@@ -65,9 +73,9 @@ The following values are defined near the top of the sketch:
 | `ALCOHOL_THRESHOLD` | Sensor reading at which the motor is stopped |
 | `WARMUP_TIME_MS` | Startup warm-up period |
 | `SAMPLE_COUNT` | Number of readings averaged for each check |
-| `MOTOR_ENABLE_ACTIVE_HIGH` | Selects whether the motor-driver enable input is active-high |
+| `RELAY_ACTIVE_LOW` | Set to `true` for an active-low relay module or `false` for an active-high module |
 
-Start by observing the sensor's baseline reading in clean air. Set a threshold appropriate for your particular module and verify the system with controlled tests. Sensor readings can vary with warm-up time, airflow, temperature, humidity, and sensor condition.
+Start by observing the sensor's baseline reading in clean air. The code's default threshold of `400` is an initial test value only; adjust it after observing readings from your actual sensor module. It is not a calibrated alcohol concentration.
 
 ## Project Structure
 
@@ -84,11 +92,12 @@ Alcohol-Based-Engine-Lock-System/
 |---|---|
 | Sensor reading remains at 0 or 1023 | Check VCC, GND, AO-to-A0 wiring, and the sensor module |
 | Readings fluctuate | Allow the sensor to warm up and average multiple readings |
-| Motor does not stop | Check the motor-driver enable wiring and active-high/active-low configuration |
-| Motor does not run | Check the motor supply, driver wiring, and common ground |
+| Relay operates in reverse | Change `RELAY_ACTIVE_LOW` to match the relay module |
+| DC motor does not run | Check the external motor supply, relay COM/NO wiring, motor condition, and relay ratings |
+| DC motor does not stop | Check the relay-control signal and COM/NO contacts |
 | Buzzer does not sound | Check polarity and current requirements |
-| Arduino resets when the motor starts | Use a suitable motor driver and separate motor supply; connect grounds appropriately |
+| Arduino resets when the motor switches | Check power wiring and motor suppression; keep the motor on its own correctly rated supply |
 
 ## Safety
 
-This setup is a prototype and should not be connected to a real vehicle's ignition, fuel system, or other safety-critical wiring. Use the motor-and-wheel assembly as the demonstration load. The MQ-3 sensor is not a certified breathalyser and cannot determine whether a person is fit to drive.
+This system should not be connected to a real vehicle's ignition, fuel system, or other safety-critical wiring. Use the DC motor and wheels as the demonstration load. The MQ-3 sensor is not a certified breathalyser and cannot determine whether a person is fit to drive.
